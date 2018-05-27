@@ -1,4 +1,4 @@
-2018-05- 
+2018-05-27 morning `:wq 
 
 beeline -u "jdbc:hive2://localhost:10000/"
 
