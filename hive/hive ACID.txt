@@ -1,0 +1,192 @@
+2018-05-27 morning  
+
+beeline -u "jdbc:hive2://localhost:10000/"
+
+
+0: jdbc:hive2://localhost:10000/> select * from employee;
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+| employee.name  |   employee.work_place   |      employee.sex_age      | employee.skills_score  |         employee.depart_title          |
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+| Michael        | ["Montreal","Toronto"]  | {"sex":"Male","age":30}    | {"DB":80}              | {"Product":["Developer","Lead"]}       |
+| Will           | ["Montreal"]            | {"sex":"Male","age":35}    | {"Perl":85}            | {"Product":["Lead"],"Test":["Lead"]}   |
+| Shelley        | ["New York"]            | {"sex":"Female","age":27}  | {"Python":80}          | {"Test":["Lead"],"COE":["Architect"]}  |
+| Lucy           | ["Vancouver"]           | {"sex":"Female","age":57}  | {"Sales":89,"HR":94}   | {"Sales":["Lead"]}                     |
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+4 rows selected (0.543 seconds)
+0: jdbc:hive2://localhost:10000/> select * from employee order by if(name='Michael',1,0);
+INFO  : Tez session hasn't been created yet. Opening session
+INFO  : Dag name: select * from employe...(name='Michael',1,0)(Stage-1)
+INFO  : Status: Running (Executing on YARN cluster with App id application_1527373888294_0001)
+
+--------------------------------------------------------------------------------
+        VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+--------------------------------------------------------------------------------
+Map 1 ..........   SUCCEEDED      1          1        0        0       0       0
+Reducer 2 ......   SUCCEEDED      1          1        0        0       0       0
+--------------------------------------------------------------------------------
+VERTICES: 02/02  [==========================>>] 100%  ELAPSED TIME: 4.22 s
+--------------------------------------------------------------------------------
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+| employee.name  |   employee.work_place   |      employee.sex_age      | employee.skills_score  |         employee.depart_title          |
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+| Will           | ["Montreal"]            | {"sex":"Male","age":35}    | {"Perl":85}            | {"Product":["Lead"],"Test":["Lead"]}   |
+| Shelley        | ["New York"]            | {"sex":"Female","age":27}  | {"Python":80}          | {"Test":["Lead"],"COE":["Architect"]}  |
+| Lucy           | ["Vancouver"]           | {"sex":"Female","age":57}  | {"Sales":89,"HR":94}   | {"Sales":["Lead"]}                     |
+| Michael        | ["Montreal","Toronto"]  | {"sex":"Male","age":30}    | {"DB":80}              | {"Product":["Developer","Lead"]}       |
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+4 rows selected (13.098 seconds)
+0: jdbc:hive2://localhost:10000/> select * from employee order by if(name='Michael',1,0), name;
+INFO  : Session is already open
+INFO  : Dag name: select * from employee order by if(na...name(Stage-1)
+INFO  : Status: Running (Executing on YARN cluster with App id application_1527373888294_0001)
+
+--------------------------------------------------------------------------------
+        VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+--------------------------------------------------------------------------------
+Map 1 ..........   SUCCEEDED      1          1        0        0       0       0
+Reducer 2 ......   SUCCEEDED      1          1        0        0       0       0
+--------------------------------------------------------------------------------
+VERTICES: 02/02  [==========================>>] 100%  ELAPSED TIME: 4.58 s
+--------------------------------------------------------------------------------
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+| employee.name  |   employee.work_place   |      employee.sex_age      | employee.skills_score  |         employee.depart_title          |
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+| Lucy           | ["Vancouver"]           | {"sex":"Female","age":57}  | {"Sales":89,"HR":94}   | {"Sales":["Lead"]}                     |
+| Shelley        | ["New York"]            | {"sex":"Female","age":27}  | {"Python":80}          | {"Test":["Lead"],"COE":["Architect"]}  |
+| Will           | ["Montreal"]            | {"sex":"Male","age":35}    | {"Perl":85}            | {"Product":["Lead"],"Test":["Lead"]}   |
+| Michael        | ["Montreal","Toronto"]  | {"sex":"Male","age":30}    | {"DB":80}              | {"Product":["Developer","Lead"]}       |
++----------------+-------------------------+----------------------------+------------------------+----------------------------------------+--+
+or use case when 
+select * from employee order by case when name = 'Michael' then 1 else 0 end , name;
+
+using hive2 from ambari hive2 -> config->  turn on 'interact query'
+ beeline -u "jdbc:hive2://localhost:10500/"
+
+HIVE NOT SUPPORT DELETE,UPDATE before hive version 1.0
+
+set hive.support.concurrency = true;
+set hive.enforce.bucketing = true;
+set hive.exec.dynamic.partition.mode = nonstrict;
+set hive.txn.manager = org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
+set hive.compactor.initiator.on = true;
+set hive.compactor.worker.threads = 1;
+
+CREATE DATABASE acid_demo;
+
+use acid_demo;
+
+set hive.enforce.bucketing = true;
+
+CREATE TABLE IF NOT EXISTS employee(
+emp_id int, 
+emp_name string, 
+dept_name string,
+work_loc string
+) 
+PARTITIONED BY (start_date string)
+CLUSTERED BY (emp_id) INTO 5 BUCKETS STORED AS ORC TBLPROPERTIES('transactional'='true')
+
+INSERT INTO table employee PARTITION (start_date) VALUES
+(1,'Will','IT','Toronto','20100701'),
+(2,'Wyne','IT','Toronto','20100701'),
+(3,'Judy','HR','Beijing','20100701'),
+(4,'Lili','HR','Beijing','20101201'),
+(5,'Mike','Sales','Beijing','20101201'),
+(6,'Bang','Sales','Toronto','20101201'),
+(7,'Wendy','Finance','Beijing','20101201');
+
+INSERT INTO table employee PARTITION (start_date) VALUES
+(8,'Joice','Finance','Toronto','20170101');
+
+update employee set dept_name='IT' where emp_id=8;
+# bucket cloumn and partition column can not be updated;
+turnon ACID Transactions from ambari hive config
+Time taken: 25.764 seconds
+hive> delete from employee where emp_id =8
+    > ;
+Query ID = root_20180526143946_3098fe6f-7b1c-4c1e-8c5a-939aac479814
+Total jobs = 1
+Launching Job 1 out of 1
+Tez session was closed. Reopening...
+Session re-established.
+Status: Running (Executing on YARN cluster with App id application_1527336629774_0004)
+
+--------------------------------------------------------------------------------
+        VERTICES      STATUS  TOTAL  COMPLETED  RUNNING  PENDING  FAILED  KILLED
+--------------------------------------------------------------------------------
+Map 1 ..........   SUCCEEDED     15         15        0        0       0       0
+Reducer 2 ......   SUCCEEDED      5          5        0        0       0       0
+--------------------------------------------------------------------------------
+VERTICES: 02/02  [==========================>>] 100%  ELAPSED TIME: 30.17 s
+--------------------------------------------------------------------------------
+Loading data to table acid_demo.employee partition (start_date=null)
+         Time taken to load dynamic partitions: 0.576 seconds
+        Loading partition {start_date=20170101}
+         Time taken for adding to write entity : 2
+Partition acid_demo.employee{start_date=20170101} stats: [numFiles=4, numRows=0, totalSize=3103, rawDataSize=0]
+OK
+Time taken: 42.887 seconds
+hive> show locks;
+OK
+Lock ID Database        Table   Partition       State   Blocked By      Type    Transaction ID  Last Heartbeat  Acquired At     User    Hostname        Agent Info
+Time taken: 0.252 seconds, Fetched: 1 row(s)
+hive> show transactions;
+OK
+Transaction ID  Transaction State       Started Time    Last Heartbeat Time     User    Hostname
+Time taken: 0.037 seconds, Fetched: 1 row(s)
+
+Merge need Hive 2.2
+
+— Demo Merge statement
+CREATE TABLE employee_state(
+emp_id int, 
+emp_name string, 
+dept_name string,
+work_loc string,
+start_date string,
+state string
+)
+STORED AS ORC;
+
+INSERT INTO table employee_state VALUES
+(2,'Wyne','IT','Beijing','20100701','update'),
+(4,'Lili','HR','Beijing','20101201','quit'), 
+(10,'James','IT','Toronto','20170101','new')
+;
+
+MERGE INTO employee AS T 
+USING employee_state AS S   //subquery
+ON T.emp_id = S.emp_id and T.start_date = S.start_date  
+WHEN MATCHED AND S.state = 'update' THEN UPDATE SET dept_name = S.dept_name, work_loc = S.work_loc  // target table no need use table alisa
+WHEN MATCHED AND S.state = 'quit' THEN DELETE
+WHEN NOT MATCHED THEN INSERT VALUES (S.emp_id, S.emp_name, S.dept_name, S.work_loc, S.start_date);
+// NOT MATCHED COME LAST // update, delete, and insert can use once for each
+select * from employee order by emp_id;
+INFO  : OK
++------------------+--------------------+---------------------+--------------------+----------------------+--+
+| employee.emp_id  | employee.emp_name  | employee.dept_name  | employee.work_loc  | employee.start_date  |
++------------------+--------------------+---------------------+--------------------+----------------------+--+
+| 1                | Will               | IT                  | Toronto            | 20100701             |
+| 2                | Wyne               | IT                  | Beijing            | 20100701             |
+| 3                | Judy               | HR                  | Beijing            | 20100701             |
+| 5                | Mike               | Sales               | Beijing            | 20101201             |
+| 6                | Bang               | Sales               | Toronto            | 20101201             |
+| 7                | Wendy              | Finance             | Beijing            | 20101201             |
+| 10               | James              | IT                  | Toronto            | 20170101             |
++------------------+--------------------+---------------------+--------------------+----------------------+--+
+
+hive> select * from employee_state;
+OK
+2       Wyne    IT      Beijing 20100701        update
+4       Lili    HR      Beijing 20101201        quit
+10      James   IT      Toronto 20170101        new
+
+
+https://github.com/datafibers/hiveudf (homework)
+
+from employee
+insert into employee_work 
+select concat_ws('--','HEADER','|',cast(current_timestamp as string),concat('employee_id',cast(current_date as string),'.flat')) as val, as key;
+select concat_ws('--','TRAIL','|',cast(current_date as string),'ROWCOUUNT',cast(count(*) as string)) as val, '3' as key;
+
+line 1 
