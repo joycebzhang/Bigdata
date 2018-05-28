@@ -1,0 +1,64 @@
+# A Common Table Expression (CTE) is a temporary result set derived from a simple query specified in a WITH clause, 
+which immediately precedes a SELECT or INSERT keyword
+
+#Syntax
+#withClause: cteClause(,cteClause)*
+#cteClause:cte_name AS (select statement)
+
+#CET in select statement 
+with ctequery as (select * from src where key = '9')
+select * from 
+from ctequery
+
+Preparation:
+1.Download the data from  here (Right Click and Save)
+
+curl -O https://raw.githubusercontent.com/joycebzhang/Bigdata/master/hive/CTE/status.csv
+# -O remote file
+
+2.Load the data to hdf:
+
+hdfs -put status.csv /tmp/data/status/
+
+3. go to hive to use the beeline command: 
+
+beeline -u "jdbc:hive2://localhost:10500/"
+
+4. Create a table to contain the status data in the cte_demo database:
+
+create external table if not exists status (
+name string,
+location string,
+model STRUCT<brand:string,model:string>,
+status string,
+last_checkedin string
+)
+COMMENT 'this is server status external table'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY'|'
+COLLECTION ITEMS TERMINATED BY','
+MAP KEYS TERMINATED BY':'
+STORED AS TEXTFILE
+LOCATION '/tmp/data/status';
+
+run select * from status:
++--------------+------------------+-------------------------------------+----------------+------------------------+--+
+| status.name  | status.location  |            status.model             | status.status  | status.last_checkedin  |
++--------------+------------------+-------------------------------------+----------------+------------------------+--+
+| master       |  toronto         | {"brand":" Dell","model":"PE2850"}  |  online        |  2018-05-14 15:38:01   |
+| worker1      | montreal         | {"brand":"Dell","model":" PE1950"}  |  offline       |  2018-05-12 12:59:02   |
+| worker2      | montreal         | {"brand":"Dell","model":" PE1950"}  |  online        |  2018-05-14 15:38:01   |
+| worker3      | montreal         | {"brand":"Dell","model":" PER720"}  |  offline       |  2018-3-14 15:38:01    |
++--------------+------------------+-------------------------------------+----------------+------------------------+--+
+
+
+Object: write a query to display the following information:
+name|server|status|check date_time|username
+-------------------------------------------
+master|Dell-PE2850|online|2018-05-14 15:38:01
+worker1|Dell-PE2850|offline|2018-05-12 12:59:02
+worker2|Dell-PE1950|online|2018-05-14 15:38:01
+worker4|Dell-PER720|offline|2018-3-14 15:38:01
+------------------------------------------
+Total Offline Server: 2 - Dell-PE2850 | Dell-PER720
+
