@@ -53,12 +53,40 @@ run select * from status:
 
 
 Object: write a query to display the following information:
-name|server|status|check date_time|username
+name|server|status|check date_time| report on '2018-05-18'
 -------------------------------------------
 master|Dell-PE2850|online|2018-05-14 15:38:01
 worker1|Dell-PE2850|offline|2018-05-12 12:59:02
 worker2|Dell-PE1950|online|2018-05-14 15:38:01
 worker4|Dell-PER720|offline|2018-3-14 15:38:01
 ------------------------------------------
-Total Offline Server: 2 - Dell-PE2850 | Dell-PER720
+Total Offline Server: 2 
+
+solution:
+1.generate the header: 
+select concat_ws('|', 'name', 'Server','check date_time',concat('report on:', cast(current_date as string))) as val, '1' as key;
+
++---------------------------------------------------+------+--+
+|                        val                        | key  |
++---------------------------------------------------+------+--+
+| name|Server|check date_time|report on:2018-05-27  | 1    |
++---------------------------------------------------+------+--+
+
+
+2.generate the body:
+select concat_ws('|',cast(name as string),concat(cast(model.brand as string),'-',cast(model.model as string)),cast(status as string),cast(last_checkedin as string)) as val,'2' as key from status;
+
++-----------------------------------------------------+------+--+
+|                         val                         | key  |
++-----------------------------------------------------+------+--+
+| master| Dell-PE2850| online| 2018-05-14 15:38:01    | 2    |
+| worker1|Dell- PE1950| offline| 2018-05-12 12:59:02  | 2    |
+| worker2|Dell- PE1950| online| 2018-05-14 15:38:01   | 2    |
+| worker3|Dell- PER720| offline| 2018-3-14 15:38:01   | 2    |
++-----------------------------------------------------+------+--+
+
+
+3.generate the trailer:    
+select concat('Total Offline Server:',cast(count(*) as string)) as val, '3' as key from status where status like '%offline%';
+
 
