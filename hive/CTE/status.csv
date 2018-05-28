@@ -1,4 +1,4 @@
-master, toronto, Dell|PE2850, online, 2018-05-14 15:38:01
-worker1,montreal,Dell|PE1950, offline, 2018-05-12 12：59：02
-worker2,montreal,Dell|PE1950, online, 2018-05-14 15:38:01
-worker3,montreal,Dell|PER720, offline, 2018-3-14 15:38:01
+master| toronto| Dell,PE2850| online| 2018-05-14 15:38:01
+worker1|montreal|Dell, PE1950| offline| 2018-05-12 12:59:02
+worker2|montreal|Dell, PE1950| online| 2018-05-14 15:38:01
+worker3|montreal|Dell, PER720| offline| 2018-3-14 15:38:01
