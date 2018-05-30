@@ -45,6 +45,7 @@ run select * from status:
 +--------------+------------------+-------------------------------------+----------------+------------------------+--+
 | status.name  | status.location  |            status.model             | status.status  | status.last_checkedin  |
 +--------------+------------------+-------------------------------------+----------------+------------------------+--+
+
 | master       |  toronto         | {"brand":" Dell","model":"PE2850"}  |  online        |  2018-05-14 15:38:01   |
 | worker1      | montreal         | {"brand":"Dell","model":" PE1950"}  |  offline       |  2018-05-12 12:59:02   |
 | worker2      | montreal         | {"brand":"Dell","model":" PE1950"}  |  online        |  2018-05-14 15:38:01   |
@@ -92,4 +93,26 @@ select concat('Total Offline Server:',cast(count(*) as string)) as val, '3' as k
 4.use CTE to put them together:
 
 with value as(select concat_ws('|', 'name', 'Server','check date_time',concat('report on:', cast(current_date as string))) as val, '1' as key union all select concat_ws('|',cast(name as string),concat(cast(model.brand as string),'-',cast(model.model as string)),cast(status as string),cast(last_checkedin as string)) as val,'2' as key from status union all select concat('Total Offline Server:',cast(count(*) as string)) as val, '3' as key from status where status like '%offline%') select val from value order by key
+
++-----------------------------------------------------+----------+--+
+|                       _u1.val                       | _u1.key  |
++-----------------------------------------------------+----------+--+
+| name|Server|check date_time|report on:2018-05-28    | 1        |
+| master| Dell-PE2850| online| 2018-05-14 15:38:01    | 2        |
+| worker1|Dell- PE1950| offline| 2018-05-12 12:59:02  | 2        |
+| worker2|Dell- PE1950| online| 2018-05-14 15:38:01   | 2        |
+| worker3|Dell- PER720| offline| 2018-3-14 15:38:01   | 2        |
+| Total Offline Server:2                              | 3        |
++-----------------------------------------------------+----------+--+
+
++-----------------------------------------------------+--+
+|                         val                         |
++-----------------------------------------------------+--+
+| name|Server|check date_time|report on:2018-05-28    |
+| master| Dell-PE2850| online| 2018-05-14 15:38:01    |
+| worker1|Dell- PE1950| offline| 2018-05-12 12:59:02  |
+| worker2|Dell- PE1950| online| 2018-05-14 15:38:01   |
+| worker3|Dell- PER720| offline| 2018-3-14 15:38:01   |
+| Total Offline Server:2                              |
++-----------------------------------------------------+--+
 
