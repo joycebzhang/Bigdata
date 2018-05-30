@@ -29,7 +29,7 @@ beeline -u "jdbc:hive2://localhost:10500/"
 create external table if not exists status (
 name string,
 location string,
-model STRUCT<brand:string,model:string>,
+4.model STRUCT<brand:string,model:string>,
 status string,
 last_checkedin string
 )
@@ -89,4 +89,7 @@ select concat_ws('|',cast(name as string),concat(cast(model.brand as string),'-'
 3.generate the trailer:    
 select concat('Total Offline Server:',cast(count(*) as string)) as val, '3' as key from status where status like '%offline%';
 
+4.use CTE to put them together:
+
+with value as(select concat_ws('|', 'name', 'Server','check date_time',concat('report on:', cast(current_date as string))) as val, '1' as key union all select concat_ws('|',cast(name as string),concat(cast(model.brand as string),'-',cast(model.model as string)),cast(status as string),cast(last_checkedin as string)) as val,'2' as key from status union all select concat('Total Offline Server:',cast(count(*) as string)) as val, '3' as key from status where status like '%offline%') select val from value order by key
 
