@@ -1,0 +1,163 @@
+hbase(main):006:0> version
+1.1.2.2.6.4.0-91, r2a88e694af7238290a5747f963a4fa0079c55bf9, Thu Jan  4 10:32:40 UTC 2018
+
+##create namespace 
+a mechanism ease of table management
+
+hbase(main):002:0> create_namespace 'my_ns'
+0 row(s) in 0.0970 seconds
+
+
+hbase(main):004:0> create 'my_ns:event_attendee','euat'
+0 row(s) in 1.3200 seconds
+
+=> Hbase::Table - my_ns:event_attendee
+
+hbase(main):017:0> list
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_titan
+event_attendee
+events
+iemployee
+my_ns:event_attendee
+test
+train
+user_friend
+users
+10 row(s) in 0.0130 seconds
+
+=> ["ATLAS_ENTITY_AUDIT_EVENTS", "atlas_titan", "event_attendee", "events", "iemployee", "my_ns:event_attendee", "test", "train", "user_friend", "users"]
+
+hbase(main):037:0> whoami
+root (auth:SIMPLE)
+    groups: root
+
+hbase(main):055:0> desc 'my_ns:event_attendee'
+Table my_ns:event_attendee is ENABLED
+my_ns:event_attendee
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'euat', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETE
+D_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', COMPRESSION => 'NONE
+', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE =>
+'0'}
+1 row(s) in 0.0680 seconds
+
+
+1. Put some data into table
+##syntax: put '<table name>', 'row_key','<colfamliy:colname>','<value>'
+
+hbase(main):034:0> put 'my_ns:event_attendee','jozhang','euat:attend_type','invited'
+0 row(s) in 0.1320 seconds
+hbase(main):035:0> put 'my_ns:event_attendee','jozhang','euat:event_id','123'
+0 row(s) in 0.0070 seconds
+hbase(main):036:0> put 'my_ns:event_attendee','jozhang','euat:user_id','456'
+0 row(s) in 0.0090 seconds
+
+hbase(main):066:0> get 'my_ns:event_attendee','jozhang'
+COLUMN                  CELL
+ euat:attend_type       timestamp=1527773960211, value=invited
+ euat:event_id          timestamp=1527774018954, value=123
+ euat:user_id           timestamp=1527774036114, value=456
+g3 row(s) in 0.0930 seconds
+
+
+hbase(main):089:0> get 'my_ns:event_attendee','jozhang',[COLUMN='euat']
+COLUMN                  CELL
+ euat:attend_type       timestamp=1527774637814, value=invited
+ euat:event_id          timestamp=1527774645518, value=123
+ euat:user_id           timestamp=1527774652608, value=456
+3 row(s) in 0.0150 seconds
+
+hbase(main):004:0> get 'my_ns:event_attendee','jozhang',[COLUMN='euat:user_id']
+(hbase):4 warning: already initialized constant COLUMN
+COLUMN                  CELL
+ euat:user_id           timestamp=1527774652608, value=456
+1 row(s) in 0.0200 seconds
+
+2.add new column family to exsiting Hbase table   
+hbase(main):016:0> alter 'my_ns:event_attendee', {NAME=>'content'}
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 2.9800 seconds
+
+3. alter table to store more versions(default1) of data
+hbase(main):028:0> alter 'my_ns:event_attendee', {NAME=>'content', VERSIONS=>5}
+/usr/hdp/2.6.4.0-91/hbase/lib/ruby/hbase/admin.rb:879 warning: toplevel constant VERSIONS referenced by Java::OrgApacheHadoopHbase::HColumnDescriptor::VERSIONS
+Updating all regions with the new schema...
+1/1 regions updated.
+Done.
+0 row(s) in 1.9110 seconds
+
+
+get 'my_ns:event_attendee','jozhang',{COLUMNS => 'content'}
+COLUMN                                           CELL
+ content:type                                    timestamp=1527776253108, value=meetup
+hbase(main):036:0> put 'my_ns:event_attendee','jozhang','content:type','drama'
+0 row(s) in 0.0650 seconds
+hbase(main):037:0> put 'my_ns:event_attendee','jozhang','content:type','movie'
+0 row(s) in 0.0160 seconds
+hbase(main):038:0> put 'my_ns:event_attendee','jozhang','content:type','party'
+0 row(s) in 0.0090 seconds
+hbase(main):039:0> put 'my_ns:event_attendee','jozhang','content:type','yard sell'
+0 row(s) in 0.0060 seconds
+hbase(main):040:0> put 'my_ns:event_attendee','jozhang','content:type','shopping'
+0 row(s) in 0.0050 seconds
+hbase(main):041:0> put 'my_ns:event_attendee','jozhang','content:type','meetup'
+
+hbase(main):071:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => 'content'}
+COLUMN                                           CELL
+ content:type                                    timestamp=1527776253108, value=meetup
+1 row(s) in 0.0140 seconds
+hbase(main):078:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => ['content:type']}
+COLUMN                                           CELL
+ content:type                                    timestamp=1527776253108, value=meetup
+1 row(s) in 0.0040 seconds
+
+hbase(main):131:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => ['content:type'] , VERSIONS => 5}
+
+
+scan table with specific column 
+hbase(main):136:0> scan  'my_ns:event_attendee',{COLUMNS =>['content:type']}
+ROW                                              COLUMN+CELL
+ jozhang                                         column=content:type, timestamp=1527778380467, value=party4
+1 row(s) in 0.0170 seconds
+
+
+hbase(main):146:0> scan  'my_ns:event_attendee',{COLUMNS =>['content:type'],VERSIONS => 2}
+ROW                                              COLUMN+CELL
+ jozhang                                         column=content:type, timestamp=1527778380467, value=party4
+1 row(s) in 0.0090 seconds
+
+Scan in a rangevc 
+
+hbase(main):160:0> scan 'my_ns:event_attendee',{STARTROW => 'j' ,STOPROW => 't' }
+ROW                                              COLUMN+CELL
+ jozhang                                         column=content:type, timestamp=1527778380467, value=party4
+ jozhang                                         column=euat:attend_type, timestamp=1527774637814, value=invited
+ jozhang                                         column=euat:event_id, timestamp=1527774645518, value=123
+ jozhang                                         column=euat:user_id, timestamp=1527774652608, value=456
+1 row(s) in 0.0150 seconds
+
+Delete
+hbase(main):176:0> scan 'event_attendee',{STARTROW => 'jozhang' ,STOPROW => 'jozhang' }
+ROW                                              COLUMN+CELL
+ jozhang                                         column=euat:attend_type, timestamp=1527773960211, value=invited
+ jozhang                                         column=euat:event_id, timestamp=1527774018954, value=123
+ jozhang                                         column=euat:user_id, timestamp=1527774036114, value=456
+1 row(s) in 0.0190 seconds
+
+hbase(main):177:0> delete 'event_attendee','jozhang','euat:user_id'
+0 row(s) in 0.0330 seconds
+
+hbase(main):178:0> scan 'event_attendee',{STARTROW => 'jozhang' ,STOPROW => 'jozhang' }
+ROW                                              COLUMN+CELL
+ jozhang                                         column=euat:attend_type, timestamp=1527773960211, value=invited
+ jozhang                                         column=euat:event_id, timestamp=1527774018954, value=123
+
+delete a table:
+disable 'my_ns:event_attendee'
+drop 'my_ns:event_attendee'
+
