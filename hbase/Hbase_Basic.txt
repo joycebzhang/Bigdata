@@ -203,8 +203,10 @@ deleteall 'my_ns:event_attendee','jozhang'
 ##delete a column family, below does not work
 ##delete   'customer',  'jsmith',   'addr'
 ##below works
-alter 'customer','delete'=>'addr'
+alter 'my_ns:event_attendee','delete'=>'content'
 delete a table:
 disable 'my_ns:event_attendee'
+##Truncate table
+truncate 'my_ns:event_attendee'
 drop 'my_ns:event_attendee'
 
