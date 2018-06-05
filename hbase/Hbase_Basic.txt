@@ -4,6 +4,10 @@ hbase(main):006:0> version
 hbase(main):018:0> status
 1 active master, 0 backup masters, 1 servers, 0 dead, 18.0000 average load
 
+hbase(main):024:0> exists 'TEST'
+Table TEST does not exist
+0 row(s) in 0.0150 seconds
+
 ##create namespace 
 a mechanism ease of table management
 
@@ -112,29 +116,34 @@ MPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65
 get 'my_ns:event_attendee','jozhang',{COLUMNS => 'content'}
 COLUMN                                           CELL
  content:type                                    timestamp=1527776253108, value=meetup
-hbase(main):036:0> put 'my_ns:event_attendee','jozhang','content:type','drama'
+hbase(main):036:0> put 'my_ns:event_attendee','jozhang','content:type','homeevents'
 0 row(s) in 0.0650 seconds
-hbase(main):037:0> put 'my_ns:event_attendee','jozhang','content:type','movie'
+hbase(main):037:0> put 'my_ns:event_attendee','jozhang','content:type','gardenin'
 0 row(s) in 0.0160 seconds
-hbase(main):038:0> put 'my_ns:event_attendee','jozhang','content:type','party'
+hbase(main):038:0> put 'my_ns:event_attendee','jozhang','content:type','gardening1'
 0 row(s) in 0.0090 seconds
-hbase(main):039:0> put 'my_ns:event_attendee','jozhang','content:type','yard sell'
+hbase(main):039:0> put 'my_ns:event_attendee','jozhang','content:type','homeevents'
 0 row(s) in 0.0060 seconds
-hbase(main):040:0> put 'my_ns:event_attendee','jozhang','content:type','shopping'
-0 row(s) in 0.0050 seconds
-hbase(main):041:0> put 'my_ns:event_attendee','jozhang','content:type','meetup'
+hbase(main):040:0> put 'my_ns:event_attendee','jozhang','content:type','homeevents2'
 
 hbase(main):071:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => 'content'}
 COLUMN                                           CELL
- content:type                                    timestamp=1527776253108, value=meetup
+ content:type                                    timestamp=1527967671007, value=homeevents2
  
 1 row(s) in 0.0140 seconds
 hbase(main):078:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => ['content:type']}
 COLUMN                                           CELL
- content:type                                    timestamp=1527776253108, value=meetup
+ content:type                                    timestamp=1527967671007, value=homeevents2
 1 row(s) in 0.0040 seconds
 
 hbase(main):131:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => ['content:type'] , VERSIONS => 5}
+COLUMN                     CELL
+ content:type              timestamp=1527967671007, value=homeevents2
+ content:type              timestamp=1527967667169, value=homeevents
+ content:type              timestamp=1527967652595, value=gardening1
+ content:type              timestamp=1527967634066, value=gardenin                      g
+ content:type              timestamp=1527967353453, value=homeEvents
+5 row(s) in 0.0580 seconds
 
 
 scan table with specific column 
@@ -143,11 +152,12 @@ ROW                                              COLUMN+CELL
  jozhang                                         column=content:type, timestamp=1527778380467, value=party4
 1 row(s) in 0.0170 seconds
 
+hbase(main):011:0>  scan 'my_ns:event_attendee',{COLUMNS=>['content:type'] , VERSIONS => 2}
+ROW                        COLUMN+CELL
+ jozhang                   column=content:type, timestamp=1527967671007, value=homeevents2
+ jozhang                   column=content:type, timestamp=1527967667169, value=homeevents
+1 row(s) in 0.0640 seconds
 
-hbase(main):146:0> scan  'my_ns:event_attendee',{COLUMNS =>['content:type'],VERSIONS => 2}
-ROW                                              COLUMN+CELL
- jozhang                                         column=content:type, timestamp=1527778380467, value=party4
-1 row(s) in 0.0090 seconds
 
 Scan in a rangevc 
 
