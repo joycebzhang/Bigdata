@@ -159,7 +159,7 @@ ROW                        COLUMN+CELL
 1 row(s) in 0.0640 seconds
 
 
-Scan in a rangevc 
+Scan in a range
 
 hbase(main):160:0> scan 'my_ns:event_attendee',{STARTROW => 'j' ,STOPROW => 't' }
 ROW                                              COLUMN+CELL
@@ -170,6 +170,13 @@ ROW                                              COLUMN+CELL
 1 row(s) in 0.0150 seconds
 
 Delete
+
+##DELETE Syntax
+##delete '<table_name>', '<row_key>', '<column_name >', <time_stamp_value> 
+##deleteall '<table_name>', '<row_key>'
+##HBase does not modify data in place. Deletes are
+##handled by creating new markers called tombstones. These are cleaned up along with the dead values on major compactions.
+
 hbase(main):176:0> scan 'event_attendee',{STARTROW => 'jozhang' ,STOPROW => 'jozhang' }
 ROW                                              COLUMN+CELL
  jozhang                                         column=euat:attend_type, timestamp=1527773960211, value=invited
@@ -177,14 +184,26 @@ ROW                                              COLUMN+CELL
  jozhang                                         column=euat:user_id, timestamp=1527774036114, value=456
 1 row(s) in 0.0190 seconds
 
-hbase(main):177:0> delete 'event_attendee','jozhang','euat:user_id'
+hbase(main):177:0> delete 'my_ns:event_attendee','jozhang','euat:user_id'
 0 row(s) in 0.0330 seconds
 
-hbase(main):178:0> scan 'event_attendee',{STARTROW => 'jozhang' ,STOPROW => 'jozhang' }
+hbase(main):178:0> scan 'my_ns:event_attendee',{STARTROW => 'jozhang' ,STOPROW => 'jozhang' }
 ROW                                              COLUMN+CELL
  jozhang                                         column=euat:attend_type, timestamp=1527773960211, value=invited
  jozhang                                         column=euat:event_id, timestamp=1527774018954, value=123
 
+##delete a cell with timestamp
+delete 'my_ns:event_attendee','jozhang','content:type',1527967671007
+
+##deleteall '<table_name>', '<row_key>'
+##delete entire row
+deleteall 'my_ns:event_attendee','jozhang'
+##We CANNOT delete the multiple rows using range in HBase shell. You can do that using Java API’s or writing script wrapper using shell, 
+
+##delete a column family, below does not work
+##delete   'customer',  'jsmith',   'addr'
+##below works
+alter 'customer','delete'=>'addr'
 delete a table:
 disable 'my_ns:event_attendee'
 drop 'my_ns:event_attendee'
