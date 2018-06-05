@@ -1,6 +1,9 @@
 hbase(main):006:0> version
 1.1.2.2.6.4.0-91, r2a88e694af7238290a5747f963a4fa0079c55bf9, Thu Jan  4 10:32:40 UTC 2018
 
+hbase(main):018:0> status
+1 active master, 0 backup masters, 1 servers, 0 dead, 18.0000 average load
+
 ##create namespace 
 a mechanism ease of table management
 
@@ -91,6 +94,20 @@ Updating all regions with the new schema...
 Done.
 0 row(s) in 1.9110 seconds
 
+hbase(main):002:0> desc 'my_ns:event_attendee'
+Table my_ns:event_attendee is ENABLED
+my_ns:event_attendee
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'content', BLOOMFILTER => 'ROW', VERSIONS => '5', IN_MEMORY => 'false',
+ KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER',
+ COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE =>
+'65536', REPLICATION_SCOPE => '0'}
+{NAME => 'euat', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KE
+EP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', CO
+MPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65
+536', REPLICATION_SCOPE => '0'}
+2 row(s) in 0.1630 seconds
+
 
 get 'my_ns:event_attendee','jozhang',{COLUMNS => 'content'}
 COLUMN                                           CELL
@@ -110,6 +127,7 @@ hbase(main):041:0> put 'my_ns:event_attendee','jozhang','content:type','meetup'
 hbase(main):071:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => 'content'}
 COLUMN                                           CELL
  content:type                                    timestamp=1527776253108, value=meetup
+ 
 1 row(s) in 0.0140 seconds
 hbase(main):078:0> get 'my_ns:event_attendee','jozhang',{COLUMNS => ['content:type']}
 COLUMN                                           CELL
