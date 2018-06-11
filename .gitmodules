@@ -1,0 +1,3 @@
+[submodule "hbase/hbase/hbase_java_api"]
+	path = hbase/hbase/hbase_java_api
+	url = https://github.com/datafibers/hbase_java_api
