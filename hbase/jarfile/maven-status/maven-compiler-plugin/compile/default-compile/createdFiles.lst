@@ -1,0 +1,9 @@
+com/datafibers/hbase/DeleteTable.class
+com/datafibers/hbase/FilterTable.class
+com/datafibers/hbase/util/HBaseConfigUtil.class
+com/datafibers/hbase/ReadTable.class
+com/datafibers/hbase/InsertIntoTable.class
+com/datafibers/hbase/DeleteRecordsFromTable.class
+com/datafibers/hbase/ListTables.class
+com/datafibers/hbase/CreateTable.class
+com/datafibers/hbase/ScanTable.class

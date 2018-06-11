@@ -1,0 +1,9 @@
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/util/HBaseConfigUtil.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/InsertIntoTable.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/CreateTable.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/ReadTable.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/ScanTable.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/DeleteRecordsFromTable.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/ListTables.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/FilterTable.java
+/opt/hbase/hbase_java_api/src/main/java/com/datafibers/hbase/DeleteTable.java
