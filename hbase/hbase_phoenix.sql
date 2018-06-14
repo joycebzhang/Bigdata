@@ -136,3 +136,44 @@ from stock s left outer join company c on s.COMPANY_ID = c.COMPANY_ID;
 0: jdbc:phoenix:localhost> !quit
 Closing: org.apache.phoenix.jdbc.PhoenixConnection
 
+Type "exit<RETURN>" to leave the HBase Shell
+Version 1.1.2.2.6.4.0-91, r2a88e694af7238290a5747f963a4fa0079c55bf9, Thu Jan  4 10:32:40 UTC 2018
+
+hbase(main):001:0> list
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+COMPANY
+STOCK
+SYSTEM.CATALOG
+SYSTEM.FUNCTION
+SYSTEM.SEQUENCE
+SYSTEM.STATS
+
+18 row(s) in 0.2170 seconds
+
+=> ["ATLAS_ENTITY_AUDIT_EVENTS", "COMPANY", "STOCK", "SYSTEM.CATALOG", "SYSTEM.FUNCTION", "SYSTEM.SEQUENCE", "SYSTEM.STATS", "atlas_titan", "customer", "event_attendee", "events", "hbasetest", "iemployee", "my_ns:event_attendee", "test", "train", "user_friend", "users"]
+hbase(main):002:0> scan 'STOCK'
+ROW                                      COLUMN+CELL
+ \x80\x00\x00\x02                        column=0:PRICE, timestamp=1529009652163, value=\xC1d
+ \x80\x00\x00\x02                        column=0:_0, timestamp=1529009652163, value=x
+ \x80\x00\x00\x03                        column=0:PRICE, timestamp=1529009652185, value=\xC2\x023[
+ \x80\x00\x00\x03                        column=0:_0, timestamp=1529009652185, value=x
+ \x80\x00\x00\x04                        column=0:PRICE, timestamp=1529009652202, value=\xC1.3
+ \x80\x00\x00\x04                        column=0:_0, timestamp=1529009652202, value=x
+ \x80\x00\x00\x05                        column=0:PRICE, timestamp=1529009654161, value=\xC2\x02\x153
+ \x80\x00\x00\x05                        column=0:_0, timestamp=1529009654161, value=x
+4 row(s) in 0.2280 seconds
+
+=> ["ATLAS_ENTITY_AUDIT_EVENTS", "COMPANY", "STOCK", "SYSTEM.CATALOG", "SYSTEM.FUNCTION", "SYSTEM.SEQUENCE", "SYSTEM.STATS", "atlas_titan", "customer", "event_attendee", "events", "hbasetest", "iemployee", "my_ns:event_attendee", "test", "train", "user_friend", "users"]
+hbase(main):002:0> scan 'COMPANY'
+ROW                                      COLUMN+CELL
+ \x80\x00\x00\x01                        column=0:NAME, timestamp=1529007675907, value=Microsoft
+ \x80\x00\x00\x01                        column=0:_0, timestamp=1529007675907, value=x
+ \x80\x00\x00\x02                        column=0:NAME, timestamp=1529007675984, value=IBM
+ \x80\x00\x00\x02                        column=0:_0, timestamp=1529007675984, value=x
+ \x80\x00\x00\x03                        column=0:NAME, timestamp=1529007676012, value=Oracle
+ \x80\x00\x00\x03                        column=0:_0, timestamp=1529007676012, value=x
+ \x80\x00\x00\x04                        column=0:NAME, timestamp=1529007676044, value=Twitter
+ \x80\x00\x00\x04                        column=0:_0, timestamp=1529007676044, value=x
+4 row(s) in 0.1480 seconds
+
